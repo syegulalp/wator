@@ -13,7 +13,7 @@ import draw
 WIDTH = 320
 HEIGHT = 240
 ZOOM = 4
-from time import perf_counter
+FRAMERATE = 30
 
 import gc
 
@@ -94,7 +94,14 @@ class Window(pyglet.window.Window):
         self.moves = []
         self.eats = []
 
+        # This ensures that the grid elements are processed in random order.
+        # Not doing this causes "ocean current" effects, which manifest
+        # noticeably when the water is most full of fish.
+
         self.seq = list(random.sample(range(WIDTH * HEIGHT), k=WIDTH * HEIGHT))
+
+        # For fun, swap the above line with the below line to see what I mean!
+        # self.seq = list(range(WIDTH * HEIGHT))
 
         self.offsets = [None] * WIDTH * HEIGHT
         for _ in self.seq:
@@ -122,7 +129,7 @@ class Window(pyglet.window.Window):
 
 
 w = Window(WIDTH * ZOOM, HEIGHT * ZOOM)
-pyglet.clock.schedule_interval(w.event, 1 / 30)
+pyglet.clock.schedule_interval(w.event, 1 / FRAMERATE)
 gc.freeze()
 gc.disable()
 gc.collect()
