@@ -97,9 +97,10 @@ class Window(pyglet.window.Window):
         # Not doing this causes "ocean current" effects, which manifest
         # noticeably when the water is most full of fish.
 
-        self.seq = list(random.sample(range(WIDTH * HEIGHT), k=WIDTH * HEIGHT))
+        self.seq = list(range(WIDTH * HEIGHT))
+        random.shuffle(self.seq)
 
-        # For fun, swap the above line with the below line to see what I mean!
+        # For fun, swap the above lines with the below line to see what I mean!
         # self.seq = list(range(WIDTH * HEIGHT))
 
         self.seqarr = array.array("L", self.seq)
