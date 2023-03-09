@@ -43,9 +43,7 @@ def event(self, *a):
     append_eats = eats.append
 
     c1 = self.colors[1]
-    # c1: cython.uchar[4] = (255, 32, 32, 255)
     c2 = self.colors[2]
-    # c2: cython.uchar[4] = (0, 255, 0, 255)
 
     ch = choice
     ri = randint
