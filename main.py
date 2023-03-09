@@ -90,9 +90,6 @@ class Window(pyglet.window.Window):
             (1, 0),
         )
 
-        self.moves = []
-        self.eats = []
-
         # This ensures that the grid elements are processed in random order.
         # Not doing this causes "ocean current" effects, which manifest
         # noticeably when the water is most full of fish.
