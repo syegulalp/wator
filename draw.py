@@ -52,9 +52,10 @@ def event(self, *a):
             continue
 
         repro += 1
+
         clear_moves()
         for offset in offsets[pos]:
-            if other_fish_repro[offset] == 0 and shark_repro[offset] == 0:
+            if fish_repro[offset] == 0 and other_fish_repro[offset] == 0:
                 append_moves(offset)
         if moves:
             target_move = ch(moves)
@@ -65,7 +66,6 @@ def event(self, *a):
                 other_fish_repro[target_move] = repro
         else:
             other_fish_repro[pos] = repro
-
         fish_repro[pos] = 0
 
         b[pos * 4 : pos * 4 + 4] = c2
@@ -106,6 +106,7 @@ def event(self, *a):
         else:
             other_shark_repro[pos] = repro
             other_shark_life[life] = life
+        shark_repro[pos] = 0
 
         b[pos * 4 : pos * 4 + 4] = c1
 
