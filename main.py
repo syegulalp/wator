@@ -23,10 +23,9 @@ class World:
         return random.randrange(0, WIDTH * HEIGHT)
 
     def __init__(self, sharks, fish, fish_repro_time, shark_repro_time):
-        self.fish_repro = [0] * WIDTH * HEIGHT
-        self.shark_life = [0] * WIDTH * HEIGHT
-        self.shark_repro = [0] * WIDTH * HEIGHT
-        self.blank = [0] * WIDTH * HEIGHT
+        self.fish_repro = array.array("L", [0] * WIDTH * HEIGHT)
+        self.shark_life = array.array("L", [0] * WIDTH * HEIGHT)
+        self.shark_repro = array.array("L", [0] * WIDTH * HEIGHT)
 
         for _ in range(fish):
             while True:
@@ -103,13 +102,15 @@ class Window(pyglet.window.Window):
         # For fun, swap the above line with the below line to see what I mean!
         # self.seq = list(range(WIDTH * HEIGHT))
 
-        self.offsets = [None] * WIDTH * HEIGHT
-        for _ in self.seq:
-            offset = []
-            x, y = (_ % WIDTH), (_ // WIDTH)
-            for v in self.vectors:
-                offset.append((((y + v[1]) % HEIGHT) * WIDTH) + ((x + v[0]) % WIDTH))
-            self.offsets[_] = offset
+        self.seqarr = array.array("L", self.seq)
+
+        self.offsets = [None] * WIDTH * HEIGHT * 4
+        for pos in self.seq:
+            x, y = (pos % WIDTH), (pos // WIDTH)
+            for i, v in enumerate(self.vectors):
+                r = (((y + v[1]) % HEIGHT) * WIDTH) + ((x + v[0]) % WIDTH)
+                self.offsets[pos * 4 + i] = r
+        self.offsetarr = array.array("L", self.offsets)
 
     def event(self, *a):
         draw.event(self, *a)

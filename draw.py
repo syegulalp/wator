@@ -1,79 +1,123 @@
 # cython: boundscheck=False
 # cython: wraparound=False
+# cython: cdivision=True
 
-from random import randint, choice
 import cython
 
 if cython.compiled:
     from cython.cimports.cpython import array as arr  # type: ignore
+    from cython.cimports.libc.stdlib import rand  # type: ignore
+
+    @cython.cfunc
+    @cython.exceptval(check=False)
+    def randint(a: cython.int, b: cython.int) -> cython.int:
+        if a == b:
+            return a
+        return a + (rand() % (b + 1) - a)
+
+    @cython.cfunc
+    def ptr(arr_obj: arr.array) -> cython.p_uchar:
+        array_ptr: cython.p_uchar = arr_obj.data.as_uchars
+        return array_ptr
+
+    @cython.cfunc
+    def ptrui(arr_obj: arr.array) -> cython.p_uint:
+        array_ptr: cython.p_uint = arr_obj.data.as_uints
+        return array_ptr
+
 else:
     import array as arr
+    from random import randint
+
+    def ptr(x):
+        return x
+
+    def ptrui(x):
+        return x
 
 
 def event(self, *a):
     world = self.worlds[self.world]
     other = self.worlds[not self.world]
 
+    length: cython.int = len(other.fish_repro)
+
+    f = arr.array("L", [0] * length)
+
     self.buffer[:] = self.blank
-    other.fish_repro[:] = world.blank
-    other.shark_repro[:] = world.blank
-    other.shark_life[:] = world.blank
+    other.fish_repro[:] = f[:]
+    other.shark_repro[:] = f[:]
+    other.shark_life[:] = f[:]
 
-    fish_repro: list = world.fish_repro
-    shark_repro: list = world.shark_repro
-    shark_life: list = world.shark_life
-    fish_repro_time: int = self.fish_repro_time
-    shark_repro_time: int = self.shark_repro_time
-    shark_starves: int = self.shark_starves
-    other_fish_repro: list = other.fish_repro
-    other_shark_repro: list = other.shark_repro
-    other_shark_life: list = other.shark_life
+    world.fish_repro: arr.array
+    other.fish_repro: arr.array
 
-    offsets: list = self.offsets
-    offset: int
-    pos: int
+    fish_repro: cython.p_uint = ptrui(world.fish_repro)
+    other_fish_repro: cython.p_uint = ptrui(other.fish_repro)
 
-    moves: list = []
-    eats: list = []
-    b: arr.array = self.buffer
+    world.shark_repro: arr.array
+    shark_repro: cython.p_uint = ptrui(world.shark_repro)
+    world.shark_life: arr.array
+    shark_life: cython.p_uint = ptrui(world.shark_life)
 
-    clear_moves = moves.clear
-    clear_eats = eats.clear
-    append_moves = moves.append
-    append_eats = eats.append
+    other.shark_repro: arr.array
+    other_shark_repro: cython.p_uint = ptrui(other.shark_repro)
+    other.shark_life: arr.array
+    other_shark_life: cython.p_uint = ptrui(other.shark_life)
 
-    c1 = self.colors[1]
-    c2 = self.colors[2]
+    fish_repro_time: cython.int = self.fish_repro_time
+    shark_repro_time: cython.int = self.shark_repro_time
+    shark_starves: cython.int = self.shark_starves
 
-    ch = choice
-    ri = randint
+    offsets_: arr.array = self.offsetarr
+    offsets: cython.p_uint = ptrui(offsets_)
 
-    repro: int
-    target_move: int
+    offset: cython.int
+    pos: cython.int
 
-    seq: list = self.seq
+    b_: arr.array = self.buffer
+    b: cython.p_uchar = ptr(b_)
 
-    for pos in seq:
+    c1: cython.uchar[4] = self.colors[1]
+    c2: cython.uchar[4] = self.colors[2]
+
+    repro: cython.int
+    target_move: cython.int
+
+    mov: cython.int[4] = [0, 0, 0, 0]
+    eat: cython.int[4] = [0, 0, 0, 0]
+    movptr: cython.int
+    eatptr: cython.int
+    x: cython.int
+    xx: cython.int
+
+    seq_: arr.array = self.seqarr
+    seq: cython.p_uint = ptrui(seq_)
+
+    for xx in range(length):
+        pos = seq[xx]
         repro = fish_repro[pos]
         if repro:
             repro += 1
-
-            clear_moves()
-            for offset in offsets[pos]:
+            movptr = 0
+            for x in range(4):
+                offset = offsets[pos * 4 + x]
                 if fish_repro[offset] == 0 and other_fish_repro[offset] == 0:
-                    append_moves(offset)
-            if moves:
-                target_move = ch(moves)
+                    mov[movptr] = offset
+                    movptr += 1
+            if movptr:
+                target_move = mov[randint(0, movptr - 1)]
                 if repro >= fish_repro_time:
-                    other_fish_repro[pos] = ri(1, fish_repro_time)
-                    other_fish_repro[target_move] = ri(1, fish_repro_time)
+                    other_fish_repro[pos] = randint(1, fish_repro_time)
+                    other_fish_repro[target_move] = randint(1, fish_repro_time)
                 else:
                     other_fish_repro[target_move] = repro
             else:
                 other_fish_repro[pos] = repro
             fish_repro[pos] = 0
 
-            b[pos * 4 : pos * 4 + 4] = c2[:]
+            for x in range(4):
+                b[pos * 4 + x] = c2[x]
 
         repro = shark_repro[pos]
         if repro:
@@ -83,20 +127,23 @@ def event(self, *a):
                 shark_repro[pos] = 0
                 continue
 
-            clear_moves()
-            clear_eats()
-            for offset in offsets[pos]:
+            movptr = 0
+            eatptr = 0
+            for x in range(4):
+                offset = offsets[pos * 4 + x]
                 if other_fish_repro[offset] != 0:
-                    append_eats(offset)
+                    eat[eatptr] = offset
+                    eatptr += 1
                 if shark_repro[offset] == 0 and other_shark_repro[offset] == 0:
-                    append_moves(offset)
-            if eats:
-                target_move = ch(eats)
+                    mov[movptr] = offset
+                    movptr += 1
+            if eatptr:
+                target_move = eat[randint(0, eatptr - 1)]
                 other_shark_repro[target_move] = repro
                 other_shark_life[target_move] = 1
                 other_fish_repro[target_move] = 0
-            elif moves:
-                target_move = ch(moves)
+            elif movptr:
+                target_move = mov[randint(0, movptr - 1)]
                 if repro > shark_repro_time:
                     other_shark_repro[pos] = 1
                     other_shark_life[pos] = 1
@@ -111,6 +158,7 @@ def event(self, *a):
                 other_shark_life[life] = life
             shark_repro[pos] = 0
 
-            b[pos * 4 : pos * 4 + 4] = c1[:]
+            for x in range(4):
+                b[pos * 4 + x] = c1[x]
 
     self.world = not self.world
