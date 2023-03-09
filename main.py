@@ -39,7 +39,7 @@ class World:
         for _ in range(sharks):
             while True:
                 pos = self.rnd()
-                if self.shark_repro[pos]:
+                if self.shark_repro[pos] or self.fish_repro[pos]:
                     continue
                 self.shark_repro[pos] = randint(1, shark_repro_time)
                 self.shark_life[pos] = 1
