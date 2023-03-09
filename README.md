@@ -12,7 +12,7 @@ You can play with some of the starting parameters in `Window.init`, but the tuni
 
 * Pyglet 2
 
-Optionally, Cython, as the `compile.py` script will compile the `draw.py` module for some speed improvements. I haven't optimized it much yet, though.
+Optionally, Cython, as the `compile.py` script will compile the `draw.py` module for major speed improvements (10-20×, by my best reckoning).
 
 ## License
 
