@@ -49,34 +49,28 @@ def event(self, *a):
     other.shark_repro[:] = f[:]
     other.shark_life[:] = f[:]
 
-    world.fish_repro: arr.array
-    other.fish_repro: arr.array
+    # world.fish_repro: arr.array
+    # other.fish_repro: arr.array
 
-    fish_repro: cython.p_uint = ptrui(world.fish_repro)
-    other_fish_repro: cython.p_uint = ptrui(other.fish_repro)
+    fish_repro = ptrui(world.fish_repro)
+    other_fish_repro = ptrui(other.fish_repro)
 
-    world.shark_repro: arr.array
-    shark_repro: cython.p_uint = ptrui(world.shark_repro)
-    world.shark_life: arr.array
-    shark_life: cython.p_uint = ptrui(world.shark_life)
+    shark_repro = ptrui(world.shark_repro)
+    shark_life = ptrui(world.shark_life)
 
-    other.shark_repro: arr.array
-    other_shark_repro: cython.p_uint = ptrui(other.shark_repro)
-    other.shark_life: arr.array
-    other_shark_life: cython.p_uint = ptrui(other.shark_life)
+    other_shark_repro = ptrui(other.shark_repro)
+    other_shark_life = ptrui(other.shark_life)
 
     fish_repro_time: cython.int = self.fish_repro_time
     shark_repro_time: cython.int = self.shark_repro_time
     shark_starves: cython.int = self.shark_starves
 
-    offsets_: arr.array = self.offsetarr
-    offsets: cython.p_uint = ptrui(offsets_)
+    offsets = ptrui(self.offsetarr)
 
     offset: cython.int
     pos: cython.int
 
-    b_: arr.array = self.buffer
-    b: cython.p_uchar = ptr(b_)
+    b: cython.p_uchar = ptr(self.buffer)
 
     c1: cython.uchar[4] = self.colors[1]
     c2: cython.uchar[4] = self.colors[2]
@@ -91,8 +85,7 @@ def event(self, *a):
     x: cython.int
     xx: cython.int
 
-    seq_: arr.array = self.seqarr
-    seq: cython.p_uint = ptrui(seq_)
+    seq = ptrui(self.seqarr)
 
     for xx in range(length):
         pos = seq[xx]

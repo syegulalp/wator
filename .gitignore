@@ -3,3 +3,6 @@ build
 *.c
 *.html
 *.pyd
+dist
+*.zip
+*.json
