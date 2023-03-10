@@ -12,10 +12,11 @@ import draw
 
 WIDTH = 320
 HEIGHT = 240
-ZOOM = 4
-FRAMERATE = 30
+ZOOM = 3
+FRAMERATE = 24
 
 import gc
+from time import perf_counter
 
 
 class World:
@@ -73,6 +74,7 @@ class Window(pyglet.window.Window):
 
         self.batch = pyglet.graphics.Batch()
         self.sprite = pyglet.sprite.Sprite(self.texture, x=0, y=0, batch=self.batch)
+        self.sprite.scale = ZOOM
 
         colors = (
             [32, 0, 64, 255],
@@ -110,11 +112,25 @@ class Window(pyglet.window.Window):
                 self.offsets[pos * 4 + i] = r
         self.offsetarr = array.array("L", self.offsets)
 
+        self.timing = 0.0
+
+        self.width = WIDTH
+        self.height = HEIGHT
+
+        print("Time to render each frame | Percentage of render time per frame")
+
     def event(self, *a):
+        start = perf_counter()
         draw.event(self)
+        self.timing += perf_counter() - start
+
+    def timer(self, *a):
+        render_time = self.timing / FRAMERATE
+        print(render_time, ((render_time) / (1 / FRAMERATE)) * 100)
+        self.timing = 0.0
 
     def on_draw(self, *a):
-        pyglet.gl.glViewport(0, 0, int(WIDTH * (ZOOM**2)), int(HEIGHT * (ZOOM**2)))
+        # pyglet.gl.glViewport(0, 0, int(WIDTH * (ZOOM**2)), int(HEIGHT * (ZOOM**2)))
         self.texture.blit_into(
             pyglet.image.ImageData(WIDTH, HEIGHT, "RGBA", self.buffer.tobytes()),
             0,
@@ -129,6 +145,7 @@ class Window(pyglet.window.Window):
 
 w = Window(WIDTH * ZOOM, HEIGHT * ZOOM)
 pyglet.clock.schedule_interval(w.event, 1 / FRAMERATE)
+pyglet.clock.schedule_interval(w.timer, 1)
 gc.freeze()
 gc.disable()
 gc.collect()
