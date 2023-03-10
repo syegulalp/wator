@@ -13,7 +13,7 @@ import draw
 WIDTH = 320
 HEIGHT = 240
 ZOOM = 3
-FRAMERATE = 24
+FRAMERATE = 30
 
 import gc
 from time import perf_counter
@@ -114,8 +114,8 @@ class Window(pyglet.window.Window):
 
         self.timing = 0.0
 
-        self.width = WIDTH
-        self.height = HEIGHT
+        self.ww = WIDTH
+        self.hh = HEIGHT
 
         print("Time to render each frame | Percentage of render time per frame")
 
