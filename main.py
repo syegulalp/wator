@@ -27,6 +27,7 @@ class World:
         self.fish_repro = array.array("L", [0] * WIDTH * HEIGHT)
         self.shark_life = array.array("L", [0] * WIDTH * HEIGHT)
         self.shark_repro = array.array("L", [0] * WIDTH * HEIGHT)
+        self.empty = array.array("L", [0] * WIDTH * HEIGHT)
 
         for _ in range(fish):
             while True:

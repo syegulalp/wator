@@ -44,14 +44,14 @@ def event(self):
     world = self.worlds[self.world]
     other = self.worlds[not self.world]
 
-    length: cython.int = len(other.fish_repro)
+    length: cython.size_t = len(other.fish_repro)
 
-    f = arr.array("L", [0] * length)
+    f = world.empty
 
     self.buffer[:] = self.blank
-    other.fish_repro[:] = f[:]
-    other.shark_repro[:] = f[:]
-    other.shark_life[:] = f[:]
+    other.fish_repro[:] = f
+    other.shark_repro[:] = f
+    other.shark_life[:] = f
 
     fish_repro = ptrui(world.fish_repro)
     other_fish_repro = ptrui(other.fish_repro)
