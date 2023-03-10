@@ -111,7 +111,7 @@ class Window(pyglet.window.Window):
         self.offsetarr = array.array("L", self.offsets)
 
     def event(self, *a):
-        draw.event(self, *a)
+        draw.event(self)
 
     def on_draw(self, *a):
         pyglet.gl.glViewport(0, 0, int(WIDTH * (ZOOM**2)), int(HEIGHT * (ZOOM**2)))

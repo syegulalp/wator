@@ -7,8 +7,10 @@ import cython
 if cython.compiled:
     from cython.cimports.cpython import array as arr  # type: ignore
     from cython.cimports.libc.stdlib import rand  # type: ignore
+    from cython.cimports.libc.string import memcpy  # type: ignore
 
     @cython.cfunc
+    @cython.inline
     @cython.exceptval(check=False)
     def randint(a: cython.int, b: cython.int) -> cython.int:
         if a == b:
@@ -16,11 +18,13 @@ if cython.compiled:
         return a + (rand() % (b + 1) - a)
 
     @cython.cfunc
+    @cython.inline
     def ptr(arr_obj: arr.array) -> cython.p_uchar:
         array_ptr: cython.p_uchar = arr_obj.data.as_uchars
         return array_ptr
 
     @cython.cfunc
+    @cython.inline
     def ptrui(arr_obj: arr.array) -> cython.p_uint:
         array_ptr: cython.p_uint = arr_obj.data.as_uints
         return array_ptr
@@ -36,7 +40,7 @@ else:
         return x
 
 
-def event(self, *a):
+def event(self):
     world = self.worlds[self.world]
     other = self.worlds[not self.world]
 
@@ -48,9 +52,6 @@ def event(self, *a):
     other.fish_repro[:] = f[:]
     other.shark_repro[:] = f[:]
     other.shark_life[:] = f[:]
-
-    # world.fish_repro: arr.array
-    # other.fish_repro: arr.array
 
     fish_repro = ptrui(world.fish_repro)
     other_fish_repro = ptrui(other.fish_repro)
@@ -69,11 +70,14 @@ def event(self, *a):
 
     offset: cython.int
     pos: cython.int
+    life: cython.int
 
     b: cython.p_uchar = ptr(self.buffer)
 
     c1: cython.uchar[4] = self.colors[1]
     c2: cython.uchar[4] = self.colors[2]
+    age_color: cython.uchar
+    starve_color: cython.uchar
 
     repro: cython.int
     target_move: cython.int
@@ -82,7 +86,9 @@ def event(self, *a):
     eat: cython.int[4] = [0, 0, 0, 0]
     movptr: cython.int
     eatptr: cython.int
+
     x: cython.int
+    y: cython.int
     xx: cython.int
 
     seq = ptrui(self.seqarr)
@@ -91,7 +97,7 @@ def event(self, *a):
         pos = seq[xx]
         repro = fish_repro[pos]
         if repro:
-            repro += 1
+            repro = min(repro + 1, fish_repro_time)
             movptr = 0
             for x in range(4):
                 offset = offsets[pos * 4 + x]
@@ -109,12 +115,15 @@ def event(self, *a):
                 other_fish_repro[pos] = repro
             fish_repro[pos] = 0
 
-            for x in range(4):
-                b[pos * 4 + x] = c2[x]
+            y = pos * 4
+            for x in range(1, 4):
+                b[y + x] = c2[x]
+            age_color = int((float(repro) / float(fish_repro_time)) * 255)
+            b[y] = age_color
 
         repro = shark_repro[pos]
         if repro:
-            repro += 1
+            repro = min(repro + 1, shark_repro_time)
             life = shark_life[pos] + 1
             if life > shark_starves:
                 shark_repro[pos] = 0
@@ -137,7 +146,7 @@ def event(self, *a):
                 other_fish_repro[target_move] = 0
             elif movptr:
                 target_move = mov[randint(0, movptr - 1)]
-                if repro > shark_repro_time:
+                if repro >= shark_repro_time:
                     other_shark_repro[pos] = 1
                     other_shark_life[pos] = 1
                     other_shark_life[target_move] = 1
@@ -151,7 +160,12 @@ def event(self, *a):
                 other_shark_life[life] = life
             shark_repro[pos] = 0
 
-            for x in range(4):
-                b[pos * 4 + x] = c1[x]
+            y = pos * 4
+            for x in range(3):
+                b[y + x] = c1[x]
+            age_color = int((float(repro) / float(shark_repro_time)) * 127)
+            starve_color = int((float(life) / float(shark_starves)) * 255)
+            b[y + 3] = age_color + 127
+            b[y + 2] = starve_color
 
     self.world = not self.world
