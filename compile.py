@@ -20,7 +20,7 @@ ext_modules = [
         "draw",
         ["draw.py"],
         # Use this line only if you're compiling with MSVC.
-        # extra_compile_args=["/arch:AVX512", "/O2"]
+        extra_compile_args=["/fp:fast", "/arch:AVX512", "/O2"]
         # extra_compile_args=["/O2"]
         # arch:AVX2
         # arch:AVX512
