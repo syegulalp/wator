@@ -7,7 +7,6 @@ import cython
 if cython.compiled:
     from cython.cimports.cpython import array as arr  # type: ignore
     from cython.cimports.libc.stdlib import rand  # type: ignore
-    from cython.cimports.libc.string import memcpy  # type: ignore
 
     @cython.cfunc
     @cython.inline
@@ -44,18 +43,19 @@ def event(self):
     world = self.worlds[self.world]
     other = self.worlds[not self.world]
 
-    length: cython.size_t = len(other.fish_repro)
+    width: cython.int = self.ww
+    height: cython.int = self.hh
+    length = width * height
 
-    f = world.empty
+    blank = world.blank
 
     self.buffer[:] = self.blank
-    other.fish_repro[:] = f
-    other.shark_repro[:] = f
-    other.shark_life[:] = f
+    other.fish_repro[:] = blank
+    other.shark_repro[:] = blank
+    other.shark_life[:] = blank
 
     fish_repro = ptrui(world.fish_repro)
     other_fish_repro = ptrui(other.fish_repro)
-
     shark_repro = ptrui(world.shark_repro)
     shark_life = ptrui(world.shark_life)
 
@@ -125,7 +125,7 @@ def event(self):
         if repro:
             repro = min(repro + 1, shark_repro_time)
             life = shark_life[pos] + 1
-            if life > shark_starves:
+            if life >= shark_starves:
                 shark_repro[pos] = 0
                 continue
 
@@ -148,9 +148,9 @@ def event(self):
                 target_move = mov[randint(0, movptr - 1)]
                 if repro >= shark_repro_time:
                     other_shark_repro[pos] = 1
-                    other_shark_life[pos] = 1
-                    other_shark_life[target_move] = 1
+                    other_shark_life[pos] = randint(1, shark_starves // 10)
                     other_shark_repro[target_move] = 1
+                    other_shark_life[target_move] = 1
                 else:
                     other_shark_life[target_move] = life
                     other_shark_repro[target_move] = repro

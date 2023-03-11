@@ -27,7 +27,7 @@ class World:
         self.fish_repro = array.array("L", [0] * WIDTH * HEIGHT)
         self.shark_life = array.array("L", [0] * WIDTH * HEIGHT)
         self.shark_repro = array.array("L", [0] * WIDTH * HEIGHT)
-        self.empty = array.array("L", [0] * WIDTH * HEIGHT)
+        self.blank = array.array("L", [0] * WIDTH * HEIGHT)
 
         for _ in range(fish):
             while True:
@@ -50,6 +50,11 @@ class World:
 class Window(pyglet.window.Window):
     def __init__(self, *a, **ka):
         super().__init__(*a, **ka)
+
+        self.set_location(
+            self.screen.width // 2 - self.width // 2,
+            self.screen.height // 2 - self.height // 2,
+        )
 
         self.texture = pyglet.image.Texture.create(WIDTH, HEIGHT)
 
@@ -74,8 +79,24 @@ class Window(pyglet.window.Window):
         self.world = 0
 
         self.batch = pyglet.graphics.Batch()
-        self.sprite = pyglet.sprite.Sprite(self.texture, x=0, y=0, batch=self.batch)
-        self.sprite.scale = ZOOM
+        # self.sprite = pyglet.sprite.Sprite(self.texture, x=0, y=0, batch=self.batch)
+        # self.sprite.scale = ZOOM
+
+        self.sprites = []
+        for _ in range(4):
+            s = pyglet.sprite.Sprite(
+                self.texture,
+                0,
+                0,
+                batch=self.batch,
+            )
+            s.scale = ZOOM
+            self.sprites.append(s)
+
+        self.sprites[1].x = -WIDTH * ZOOM
+        self.sprites[2].x = -WIDTH * ZOOM
+        self.sprites[2].y = -HEIGHT * ZOOM
+        self.sprites[3].y = -HEIGHT * ZOOM
 
         colors = (
             [32, 0, 64, 255],
@@ -119,6 +140,11 @@ class Window(pyglet.window.Window):
         self.hh = HEIGHT
 
         print("Time to render each frame | Percentage of render time per frame")
+
+    def on_mouse_drag(self, x, y, dx, dy, *a):
+        for _ in self.sprites:
+            _.x = ((_.x + dx) % (WIDTH * ZOOM * 2)) - WIDTH * ZOOM
+            _.y = ((_.y + dy) % (HEIGHT * ZOOM * 2)) - HEIGHT * ZOOM
 
     def event(self, *a):
         start = perf_counter()
