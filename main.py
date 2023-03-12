@@ -79,6 +79,7 @@ class Window(pyglet.window.Window):
         self.world = 0
 
         self.batch = pyglet.graphics.Batch()
+        self.text_batch = pyglet.graphics.Batch()
 
         self.sprites = []
         for _ in range(4):
@@ -141,11 +142,26 @@ class Window(pyglet.window.Window):
         self.offsetarr = array.array("L", self.offsets)
 
         self.timing = 0.0
+        self.render_time = 0.0
+        self.framerate = 0.0
 
         self.ww = WIDTH
         self.hh = HEIGHT
 
-        print("Time to render each frame | Percentage of render time per frame")
+        self.fish_pop = 0
+        self.shark_pop = 0
+
+        self.label = pyglet.text.Label(
+            "",
+            multiline=True,
+            width=self.width // 2,
+            anchor_x="left",
+            anchor_y="top",
+            x=8,
+            y=self.height - 8,
+            batch=self.text_batch,
+        )
+        self.update_text()
 
     def on_mouse_drag(self, x, y, dx, dy, *a):
         for _ in self.sprites:
@@ -157,10 +173,21 @@ class Window(pyglet.window.Window):
         draw.event(self)
         self.timing += perf_counter() - start
 
+    def on_key_press(self, symbol, modifiers):
+        if symbol == 65289:
+            self.label.visible = not self.label.visible
+            self.update_text()
+
     def timer(self, *a):
-        render_time = self.timing / FRAMERATE
-        print(render_time, (render_time / (1 / FRAMERATE)) * 100)
+        self.render_time = self.timing / FRAMERATE
+        self.framerate = ((1 / FRAMERATE) / self.render_time) * FRAMERATE
+        # (self.render_time / (1 / FRAMERATE)) * 100
         self.timing = 0.0
+        if self.label.visible:
+            self.update_text()
+
+    def update_text(self):
+        self.label.text = f"Fish: {self.fish_pop}\nSharks: {self.shark_pop}\n\nTime per frame: {self.render_time:.3}\nFramerate: {int(self.framerate)}"
 
     def on_draw(self, *a):
         self.texture.blit_into(
@@ -171,6 +198,7 @@ class Window(pyglet.window.Window):
         )
         self.clear()
         self.batch.draw()
+        self.text_batch.draw()
 
         gc.collect()
 

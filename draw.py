@@ -91,12 +91,16 @@ def event(self):
     y: cython.int
     xx: cython.int
 
+    fish_pop: cython.int = 0
+    shark_pop: cython.int = 0
+
     seq = ptrui(self.seqarr)
 
     for xx in range(length):
         pos = seq[xx]
         repro = fish_repro[pos]
         if repro:
+            fish_pop += 1
             y = pos * 4
             repro = min(repro + 1, fish_repro_time)
             movptr = 0
@@ -123,6 +127,7 @@ def event(self):
 
         repro = shark_repro[pos]
         if repro:
+            shark_pop += 1
             repro = min(repro + 1, shark_repro_time)
             life = shark_life[pos] + 1
             if life >= shark_starves:
@@ -168,3 +173,5 @@ def event(self):
             b[y + 3] = age_color + 127
 
     self.world = not self.world
+    self.fish_pop = fish_pop
+    self.shark_pop = shark_pop
