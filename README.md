@@ -8,6 +8,8 @@ It simulates ocean life, where colonies of sharks feed on colonies of fish.
 
 You can play with some of the starting parameters in `Window.init`, but the tunings I have right now result in some very pleasant-looking steady-state patterns over time.
 
+Press `Tab` to toggle the onscreen stats on and off.
+
 ## Requirements
 
 * Pyglet 2
