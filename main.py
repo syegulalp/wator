@@ -187,7 +187,7 @@ class Window(pyglet.window.Window):
             self.update_text()
 
     def update_text(self):
-        self.label.text = f"Fish: {self.fish_pop}\nSharks: {self.shark_pop}\n\nTime per frame: {self.render_time:.3}\nFramerate: {int(self.framerate)}"
+        self.label.text = f"Fish: {self.fish_pop}\nSharks: {self.shark_pop}\n\nTime per frame: {self.render_time:.3}\nFramerate: {int(self.framerate)} @ {FRAMERATE} fps"
 
     def on_draw(self, *a):
         self.texture.blit_into(
