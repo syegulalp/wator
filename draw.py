@@ -97,10 +97,11 @@ def event(self):
         pos = seq[xx]
         repro = fish_repro[pos]
         if repro:
+            y = pos * 4
             repro = min(repro + 1, fish_repro_time)
             movptr = 0
             for x in range(4):
-                offset = offsets[pos * 4 + x]
+                offset = offsets[y + x]
                 if fish_repro[offset] == 0 and other_fish_repro[offset] == 0:
                     mov[movptr] = offset
                     movptr += 1
@@ -115,11 +116,10 @@ def event(self):
                 other_fish_repro[pos] = repro
             fish_repro[pos] = 0
 
-            y = pos * 4
+            age_color = int((float(repro) / float(fish_repro_time)) * 255)
+            b[y] = 255 - age_color
             for x in range(1, 4):
                 b[y + x] = c2[x]
-            age_color = int((float(repro) / float(fish_repro_time)) * 255)
-            b[y] = age_color
 
         repro = shark_repro[pos]
         if repro:
@@ -128,11 +128,11 @@ def event(self):
             if life >= shark_starves:
                 shark_repro[pos] = 0
                 continue
-
+            y = pos * 4
             movptr = 0
             eatptr = 0
             for x in range(4):
-                offset = offsets[pos * 4 + x]
+                offset = offsets[y + x]
                 if other_fish_repro[offset] != 0:
                     eat[eatptr] = offset
                     eatptr += 1
@@ -160,12 +160,11 @@ def event(self):
                 other_shark_life[life] = life
             shark_repro[pos] = 0
 
-            y = pos * 4
-            for x in range(3):
-                b[y + x] = c1[x]
             age_color = int((float(repro) / float(shark_repro_time)) * 127)
             starve_color = int((float(life) / float(shark_starves)) * 255)
-            b[y + 3] = age_color + 127
+            b[y] = c1[0]
+            b[y + 1] = c1[1]
             b[y + 2] = starve_color
+            b[y + 3] = age_color + 127
 
     self.world = not self.world

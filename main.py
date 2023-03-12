@@ -7,7 +7,7 @@ pyglet.image.Texture.default_mag_filter = pyglet.gl.GL_NEAREST
 
 import array
 import random
-from random import choice, randint, randrange
+from random import randint
 import draw
 
 WIDTH = 320
@@ -79,8 +79,6 @@ class Window(pyglet.window.Window):
         self.world = 0
 
         self.batch = pyglet.graphics.Batch()
-        # self.sprite = pyglet.sprite.Sprite(self.texture, x=0, y=0, batch=self.batch)
-        # self.sprite.scale = ZOOM
 
         self.sprites = []
         for _ in range(4):
@@ -118,16 +116,24 @@ class Window(pyglet.window.Window):
         # Not doing this causes "ocean current" effects, which manifest
         # noticeably when the water is most full of fish.
 
-        self.seq = list(range(WIDTH * HEIGHT))
-        random.shuffle(self.seq)
+        # seq = []
+        # for n in range(HEIGHT):
+        #     w = n * WIDTH
+        #     sseq = list(range(w, w + WIDTH))
+        #     random.shuffle(sseq)
+        #     seq.extend(sseq)
+
+        seq = list(range(WIDTH * HEIGHT))
+        random.shuffle(seq)
 
         # For fun, swap the above lines with the below line to see what I mean!
         # self.seq = list(range(WIDTH * HEIGHT))
 
-        self.seqarr = array.array("L", self.seq)
+        self.seqarr = array.array("L", seq)
 
         self.offsets = [None] * WIDTH * HEIGHT * 4
-        for pos in self.seq:
+        for pos in seq:
+            # for pos in range(WIDTH * HEIGHT):
             x, y = (pos % WIDTH), (pos // WIDTH)
             for i, v in enumerate(self.vectors):
                 r = (((y + v[1]) % HEIGHT) * WIDTH) + ((x + v[0]) % WIDTH)
@@ -153,11 +159,10 @@ class Window(pyglet.window.Window):
 
     def timer(self, *a):
         render_time = self.timing / FRAMERATE
-        print(render_time, ((render_time) / (1 / FRAMERATE)) * 100)
+        print(render_time, (render_time / (1 / FRAMERATE)) * 100)
         self.timing = 0.0
 
     def on_draw(self, *a):
-        # pyglet.gl.glViewport(0, 0, int(WIDTH * (ZOOM**2)), int(HEIGHT * (ZOOM**2)))
         self.texture.blit_into(
             pyglet.image.ImageData(WIDTH, HEIGHT, "RGBA", self.buffer.tobytes()),
             0,
