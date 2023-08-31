@@ -89,15 +89,15 @@ def event(self):
 
     x: cython.int
     y: cython.int
-    xx: cython.int
+    counter: cython.int
 
     fish_pop: cython.int = 0
     shark_pop: cython.int = 0
 
     seq = ptrui(self.seqarr)
 
-    for xx in range(length):
-        pos = seq[xx]
+    for counter in range(length):
+        pos = seq[counter]
         repro = fish_repro[pos]
         if repro:
             fish_pop += 1

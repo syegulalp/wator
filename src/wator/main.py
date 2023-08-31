@@ -8,7 +8,7 @@ pyglet.image.Texture.default_mag_filter = pyglet.gl.GL_NEAREST
 import array
 import random
 from random import randint
-import draw
+from . import draw
 
 WIDTH = 320
 HEIGHT = 240
@@ -117,13 +117,6 @@ class Window(pyglet.window.Window):
         # Not doing this causes "ocean current" effects, which manifest
         # noticeably when the water is most full of fish.
 
-        # seq = []
-        # for n in range(HEIGHT):
-        #     w = n * WIDTH
-        #     sseq = list(range(w, w + WIDTH))
-        #     random.shuffle(sseq)
-        #     seq.extend(sseq)
-
         seq = list(range(WIDTH * HEIGHT))
         random.shuffle(seq)
 
@@ -134,7 +127,6 @@ class Window(pyglet.window.Window):
 
         self.offsets = [None] * WIDTH * HEIGHT * 4
         for pos in seq:
-            # for pos in range(WIDTH * HEIGHT):
             x, y = (pos % WIDTH), (pos // WIDTH)
             for i, v in enumerate(self.vectors):
                 r = (((y + v[1]) % HEIGHT) * WIDTH) + ((x + v[0]) % WIDTH)
@@ -181,7 +173,6 @@ class Window(pyglet.window.Window):
     def timer(self, *a):
         self.render_time = self.timing / FRAMERATE
         self.framerate = ((1 / FRAMERATE) / self.render_time) * FRAMERATE
-        # (self.render_time / (1 / FRAMERATE)) * 100
         self.timing = 0.0
         if self.label.visible:
             self.update_text()
@@ -202,11 +193,15 @@ class Window(pyglet.window.Window):
 
         gc.collect()
 
+def main():
+    w = Window(WIDTH * ZOOM, HEIGHT * ZOOM)
+    pyglet.clock.schedule_interval(w.event, 1 / FRAMERATE)
+    pyglet.clock.schedule_interval(w.timer, 1)
+    gc.freeze()
+    gc.disable()
+    gc.collect()
+    pyglet.app.run()
 
-w = Window(WIDTH * ZOOM, HEIGHT * ZOOM)
-pyglet.clock.schedule_interval(w.event, 1 / FRAMERATE)
-pyglet.clock.schedule_interval(w.timer, 1)
-gc.freeze()
-gc.disable()
-gc.collect()
-pyglet.app.run()
+
+if __name__ == "__main__":
+    main()

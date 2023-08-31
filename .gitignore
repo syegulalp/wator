@@ -1,4 +1,5 @@
 .env*
+.venv*
 build
 *.c
 *.html
@@ -6,3 +7,5 @@ build
 dist
 *.zip
 *.json
+*.egg-info
+**/__pycache__
