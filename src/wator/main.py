@@ -191,15 +191,15 @@ class Window(pyglet.window.Window):
         self.batch.draw()
         self.text_batch.draw()
 
-        gc.collect()
+        # gc.collect()
 
 def main():
     w = Window(WIDTH * ZOOM, HEIGHT * ZOOM)
     pyglet.clock.schedule_interval(w.event, 1 / FRAMERATE)
     pyglet.clock.schedule_interval(w.timer, 1)
     gc.freeze()
-    gc.disable()
-    gc.collect()
+    # gc.disable()
+    # gc.collect()
     pyglet.app.run()
 
 

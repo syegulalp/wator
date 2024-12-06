@@ -1,9 +1,11 @@
 .env*
 .venv*
+.vscode*
 build
-*.c
-*.html
-*.pyd
+deploy*
+src/**/*.c
+src/**/*.html
+src/**/*.pyd
 dist
 *.zip
 *.json

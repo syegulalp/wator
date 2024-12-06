@@ -1,13 +1,13 @@
 [project]
 name = "wator"
 version = "0.1"
-dependencies = ["pyglet", "Cython>=3.0.0"]
+dependencies = ["pyglet"]
 
 [project.optional-dependencies]
-dev = ["black"]
+dev = ["Cython"]
 
 [build-system]
-requires = ["setuptools>=61.0", "wheel", "Cython"]
+requires = ["setuptools", "wheel", "Cython"]
 build-backend = "setuptools.build_meta"
 
 [project.scripts]
